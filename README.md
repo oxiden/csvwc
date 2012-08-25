@@ -1,4 +1,4 @@
 csvwc
 =====
 
-csv word count tool
+this is csvwc (e.g. like /bin/wc) just for me.
