@@ -19,12 +19,11 @@ begin
     opt.parse!(ARGV)
   end
   options = {:w => true, :c => true, :l => true} if options.empty?
-
   
   # counts
   results = []
   (ARGV.empty? ? [nil] : ARGV).each do |target|
-    payload = target ? CSV.readlines(target) : [CSV.parse_line(STDIN.readline.to_s)]
+    payload = target ? CSV.readlines(target) : CSV.parse(STDIN.read)
     r = []
     r << 0 if options[:w]
     r << payload.first.length if options[:c]
