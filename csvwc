@@ -12,8 +12,8 @@ begin
     opt.on("-c", "--column", "count columns") {options[:c] = true}
     opt.on("-l", "--line", "count lines") {options[:l] = true}
     opt.on("-h", "--help", "print this message") do
-      puts "Usage: #{$1} [options] file [file...]"
-      puts (opt.to_a)[1..-1]
+      puts "Usage: #{$0} [options] file [file...]"
+      puts (opt.to_s.split("\n"))[1..-1]
       exit 0
     end
     opt.parse!(ARGV)
