@@ -12,7 +12,6 @@
 #define LF '\n'
 #define QUOTE '"'
 
-#define TARGET_FILES (100)
 #define OPTION_NONE (0x00)
 #define OPTION_WORD (0x01)
 #define OPTION_COLUMN (0x02)
@@ -101,15 +100,14 @@ void print_usage(const char const* self) {
 
 int main(int argc, char *argv[]) {
 	int options = OPTION_NONE;
-	int target_file_no[TARGET_FILES];
-	int target_file_count = 0;
+	int target_file_no = 0;
   int double_hyphen = FALSE;
 
 	int data_from_stdin = FALSE;
 
 	int i;
 	/* parse comand line */
-	for(i=1; i<argc; i++){
+	for(i = 1; i < argc; i++){
 		printf_debug("[%d]: %s\n", i, argv[i]);
 		if (!double_hyphen && strncmp(argv[i], "-", 1) == 0) {
 			if (strncmp(argv[i] + 1, "-", 1) == 0) {
@@ -152,9 +150,10 @@ int main(int argc, char *argv[]) {
 				exit(0);
 			}
 		} else {
-			printf_debug("target(%d)=[%s]\n", target_file_count+1, argv[i]);
-			target_file_no[target_file_count] = i;
-			target_file_count++;
+			printf_debug("target=[%s]\n", argv[i]);
+			if (target_file_no == 0) {
+				target_file_no = i;
+			}
 		}
 	}
 	if (options == OPTION_NONE) {
@@ -163,29 +162,33 @@ int main(int argc, char *argv[]) {
 	printf_debug("options=%02x\n", options);
 
 	/* main procedure */
-	if (target_file_count == 0) {
+	if (target_file_no == 0) {
 		/* get payload from stdin */
 		data_from_stdin = TRUE;
-		target_file_count = 1;
+		target_file_no = argc - 1;
 	}
-	for (i = 0; i < target_file_count; i++) {
+	for (i = target_file_no; i < argc; i++) {
 		if (options & OPTION_WORD) {
-			printf("%ld ", 0L); /* TODO: word count is not imprelemeted yet. */
+			printf("  %ld", 0L); /* TODO: word count is not imprelemeted yet. */
 		}
 		if (options & OPTION_COLUMN) {
-			printf("%ld ", 0L); /* TODO: column count is not imprelemeted yet */
+			printf("  %ld", 0L); /* TODO: column count is not imprelemeted yet */
 		}
 		if (options & OPTION_LINE) {
 			long result;
 			if (data_from_stdin) {
 				result = countCSV(&stdin);
 			} else {
-				result = openCSV(argv[target_file_no[i]]);
+				result = openCSV(argv[i]);
 			}
-			printf("%ld ", result);
+			printf("  %ld", result);
 		}
 		if (options) {
-			printf("%s\n", argv[target_file_no[i]]);
+			if (!data_from_stdin) {
+				printf("  %s\n", argv[i]);
+			} else {
+				printf("\n");
+			}
 		}
 	}
 	return 0;
