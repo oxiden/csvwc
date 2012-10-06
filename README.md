@@ -9,5 +9,6 @@ $ make
 
 
 usage
-$ csvwc him.csv him2.csv  
-$ cat him.csv | csvwc -l
+-----
+$ ./csvwc him.csv him2.csv  
+$ cat him.csv | ./csvwc -l
