@@ -5,9 +5,10 @@
 #include "debugger.h"
 
 //#define DEBUG
-#define BUFFERSIZE (16)
+#define BUFFERSIZE (1024 * 8)
 #define TRUE (1)
 #define FALSE (0)
+#define CR '\r'
 #define LF '\n'
 #define QUOTE '"'
 
@@ -20,10 +21,15 @@
 /* LF/CR/CRLF char? */
 int is_eol(const char const* p) {
 	if (*p == LF) {
-		printf_debug("detect LF\n");
-		return TRUE;
+		return 1;
+	} else if (*p == CR) {
+		if (*(p+1) == LF) {
+			return 2;
+		} else {
+			return 1;
+		}
 	}
-	return FALSE;
+	return 0;
 }
 
 /* count lines */
@@ -33,21 +39,26 @@ long countCSV(FILE** pfp) {
 	long count = 0L;
 	int quote_in = FALSE;
 
-	char* p;
-	while (fgets(pbuf, BUFFERSIZE, *pfp) != NULL) {
-		int it;
-		size_t len = strlen(pbuf);
+	char* p = NULL;
+	size_t len;
+	while (!feof(*pfp) && (len = fread(pbuf, sizeof(char), BUFFERSIZE, *pfp))) {
 		printf_string_debug(pbuf);
+		printf_debug("len=%ld\n", len);
+		int it;
 		for (it = 0; it < len; it++) {
 			p = pbuf + it;
-			printf_debug("%2d:%c\n", it, *p);
-			if (is_eol(p)) {
+			printf_char_debug(it, *p);
+			int eol = is_eol(p);
+			if (eol) {
+  			printf_debug("detect CR/LF/CRLF\n");
 				if (quote_in) {
 					/* skip count */
 				} else {
 					count++;
 					printf_debug("count up! %ld\n", count);
 				}
+				it += (eol - 1);
+				continue;
 			}
 			if (*p == QUOTE) {
 				if (quote_in) {
@@ -56,14 +67,15 @@ long countCSV(FILE** pfp) {
 				} else {
 					quote_in = TRUE;
 					printf_debug("quote in!\n");
-					//return -1; /* TODO:case of nest quoting */
 				}
 			}
 		}
 	}
-	if (!is_eol(p)) {
-		count++;
+#ifdef DEBUG
+	if (quote_in) {
+		fprintf(stderr, "WARN: quote detect unexpected position\n");
 	}
+#endif
 	free(pbuf);
 	return count;
 }
