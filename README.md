@@ -1,14 +1,22 @@
 csvwc
 =====
 
-this is csvwc (e.g. like /bin/wc) just for me.
+This is csvwc, similar to wc(1), but tailored for my needs.
 
-install
+Installation
 -----
+```
 $ make
+```
 
-
-usage
+Usage
 -----
+```
 $ ./csvwc him.csv him2.csv  
 $ cat him.csv | ./csvwc -l
+```
+
+Remarks
+-----
+* Word count is not implemented yet.
+* Column count is not implemented yet.
