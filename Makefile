@@ -1,10 +1,19 @@
 CC = gcc
 CFLAGS = -Wall -O2
 BINFILE = csvwc
-SRC = csvwc.c debugger.c debugger.h
-csvwc:
-	$(CC) $(CFLAGS) -o $(BINFILE) $(SRC)
-debug:
-	$(CC) $(CFLAGS) -DDEBUG -o $(BINFILE) $(SRC)
+SRC = csvwc.c debugger.c
+HDR = debugger.h
+OBJ = $(SRC:.c=.o)
+
+%.o: %.c $(HDR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+csvwc: $(OBJ)
+	$(CC) $(CFLAGS) -o $(BINFILE) $(OBJ)
+
+debug: $(OBJ)
+	$(CC) $(CFLAGS) -DDEBUG -o $(BINFILE) $(OBJ)
+
 clean:
-	if [ -e $(BINFILE) ]; then rm $(BINFILE); fi
+	rm -f $(BINFILE)
+	rm -f $(OBJ)
